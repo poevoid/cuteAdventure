@@ -43,42 +43,47 @@ void updateSprite(){
     player.big =true;
   }
   if (player.left && !arduboy.pressed(LEFT_BUTTON)){
-    if (player.big) {player.sprite =grayl;}
+    if (player.big) {player.sprite =idlel;}
     else {
-    player.sprite = graylsmall;
+    player.sprite = idlelsmall;
     }
   } else if (player.left && arduboy.pressed(LEFT_BUTTON)){
-    if (player.big) {player.sprite =graywalkleft;}
+    if (player.big) {player.sprite =walkleft;}
     else {
-      player.sprite = graywalkleftsmall;
+      player.sprite = walkleftsmall;
     }
   }
-  if (player.right){
-    if (player.big) {player.sprite =grayr;}
+  if (player.right && !arduboy.pressed(RIGHT_BUTTON)){
+    if (player.big) {player.sprite =idler;}
     else {
-    player.sprite = grayrsmall;
+    player.sprite = idlersmall;
+    }
+  } else if (player.right && arduboy.pressed(RIGHT_BUTTON)){
+    if (player.big) {player.sprite =walkright;}
+    else {
+      player.sprite = walkrightsmall;
     }
   }
   if (player.down && !arduboy.pressed(DOWN_BUTTON)){
-    if (player.big) {player.sprite =grayf;}
+    if (player.big) {player.sprite =idlef;}
     else {
-    player.sprite = grayfsmall;
+    player.sprite = idlefsmall;
     }
   } else if (player.down && arduboy.pressed(DOWN_BUTTON)){
-    if (player.big) {player.sprite =graywalkf;}
+    if (player.big) {player.sprite =walkf;}
     else {
-    player.sprite = graywalkfsmall;
+    player.sprite = walkfsmall;
     }
   }
-  if (player.sprite == graywalkfsmall || player.sprite == graywalkf || player.sprite == graywalkleft || player.sprite == graywalkleftsmall){
+  if (player.sprite == walkfsmall || player.sprite == walkf || player.sprite == walkleft || player.sprite == walkleftsmall || player.sprite == walkright || player.sprite ==walkrightsmall){
     player.frames = 9;
   } else {
     player.frames =7;
   }
   if (player.up==true){
-    if (player.big) {player.sprite =grayu;}
+    if (player.big) {player.sprite =idleu;}
     else {
-    player.sprite = grayusmall;
+    player.sprite = idleusmall;
     }
   }
 }
@@ -131,11 +136,11 @@ void render() {
 
       if (currentPlane <= 2) {  //white
         arduboy.setCursor(0, 0);
-        arduboy.println("cutecat");
+        //arduboy.println("cutecat");
         
       }
 
-      
+      SpritesU::drawOverwriteFX(0, 0, test, FRAME(0));
       SpritesU::drawPlusMaskFX(player.x, player.y, player.sprite, FRAME(currentframe));
       
       break;

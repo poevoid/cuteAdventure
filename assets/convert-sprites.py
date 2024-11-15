@@ -1,6 +1,5 @@
 from PIL import Image
 import os
-from pathlib import Path
 
 def get_shade(rgba, shades, shade):
     w = (254 + shades) // shades
@@ -10,33 +9,23 @@ def get_shade(rgba, shades, shade):
 def get_mask(rgba):
     return 1 if rgba[3] >= 128 else 0
 
-def convert(fname, shades, sw = None, sh = None, num = None, maskImage = False):
+def convert_impl(fname, shades, sw = None, sh = None, num = None):
 
     if not (shades >= 2 and shades <= 4):
         print('shades argument must be 2, 3, or 4')
         return None
 
+    print('Converting:', fname)
+
     im = Image.open(fname).convert('RGBA')
     pixels = list(im.getdata())
     
-    masked = maskImage
-    #q = 0
+    masked = False
     for i in pixels:
-        #q = q + 1
-        # print(i[0])
-        # print(i[1])
-        # print(i[2])
-        # print(i[3])
         if i[3] < 255:
-            # print('masked!!! ')
-            # print(q)
             masked = True
-            # exit()
             break
-
-    print('{}, shades {}, masked {}'.format(fname, shades, masked))
-
-
+    
     w = im.width
     h = im.height
     if sw is None: sw = w
@@ -63,8 +52,7 @@ def convert(fname, shades, sw = None, sh = None, num = None, maskImage = False):
                     mask = 0
                     for iy in range(8):
                         y = p * 8 + iy
-                        if y >= sh: 
-                            break
+                        if y >= sh: break
                         y += by
                         i = y * w + x
                         rgba = pixels[i]
@@ -76,29 +64,40 @@ def convert(fname, shades, sw = None, sh = None, num = None, maskImage = False):
     
     return bytes
     
-def convert_header(fname, fout, sym, shades, sw = None, sh = None, num = None, maskImage = False):
-    bytes = convert(fname, shades, sw, sh, num, maskImage)
-    if bytes is None: 
-        return
-    with open(fout, 'a') as f:
-        # f.write('#pragma once\n\n#include <stdint.h>\n#include <avr/pgmspace.h>\n\n')
-        # f.write('constexpr uint8_t %s[] PROGMEM =\n{\n' % sym)
-        f.write('uint8_t %s[] = \n{\n  ' % sym)
+def convert_header(fname, fout, sym, shades, sw = None, sh = None, num = None):
+    bytes = convert_impl(fname, shades, sw, sh, num)
+    if bytes is None: return
+    with open(fout, 'w') as f:
+       
+        f.write('uint8_t %s[] =\n{\n' % sym)
         for n in range(len(bytes)):
             if n % 16 == 0:
-                f.write('\n  ')
+                f.write('    ')
             f.write('%3d,' % bytes[n])
             f.write(' ' if n % 16 != 15 else '\n')
-            f.write(' ' if n % 18 != 2 else '\n')
-            f.write(' ')
         if len(bytes) % 16 != 0:
             f.write('\n')
-        f.write('};\n\n')
+        f.write('};\n')
+
+def convert_bin(fname, fout, shades, sw = None, sh = None, num = None):
+    bytes = convert_impl(fname, shades, sw, sh, num)
+    if bytes is None: return
+    with open(fout, 'wb') as f:
+        f.write(bytes)
+
+def convert(fout, sym, fname, sw, sh, num = None):
+    if fout[-4:] == '.bin':
+        convert_bin(fname, fout, 4, sw, sh, num)
+    else:
+        convert_header(fname, fout, sym, 4, sw, sh, num)
+
 
 def deleteFile(filename):
     if os.path.isfile(filename):
         os.remove(filename)
 
+bw = '_bw'
+bw = ''
 BASE = '../'
 IMAGES = '../images/'
 
@@ -133,6 +132,4 @@ convert_header(IMAGES + 'idlef_64x64.png', BASE + 'Images.hpp', 'idlef', 4, 64, 
 
 convert_header(IMAGES + 'test_32x32.png', BASE + 'Images.hpp', 'test', 4, 32, 32)
 #convert_header(IMAGES + 'idlesheet_64x64.png', BASE + 'Images.hpp', 'idle', 4, 64, 64)
-
-
 

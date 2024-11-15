@@ -29,7 +29,7 @@ struct Light {
  
 };
 Light light = {64, 64, 5};
-Player player = {64, 0, grayfsmall, 7, false, true, false, false, true};
+Player player = {64, 0, idlefsmall, 7, false, true, false, false, true};
 Screen screen = {Screen::Title};
 uint8_t currentframe = 0;
 
